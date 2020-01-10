@@ -231,8 +231,25 @@ function extendAimLine(aimCircle) {
 }
 
 
+// Determines whether or not player is in a game
+PLAYING_GAME_TEST_POINTS = [
+    { x:107+5, y:194+5, r:18, g:26, b:38 },
+    { x:107+10, y:194+10, r:60, g:52, b:64 }
+]
+function isPlayingGame() {
+    for (testPoint of PLAYING_GAME_TEST_POINTS) {
+        if (gamePixels[getIndex(testPoint.x, testPoint.y)    ] !== testPoint.r) return false
+        if (gamePixels[getIndex(testPoint.x, testPoint.y) + 1] !== testPoint.g) return false
+        if (gamePixels[getIndex(testPoint.x, testPoint.y) + 2] !== testPoint.b) return false
+    }
+
+    return true
+}
+
+
 
 function render() {
+    // Read pool game canvas pixels
     gl.readPixels(
         0,
         0,
@@ -242,8 +259,6 @@ function render() {
         gl.UNSIGNED_BYTE,
         gamePixels
     )
-
-
 
     ctx.clearRect(0, 0, gw, gh)
 
@@ -255,34 +270,38 @@ function render() {
     ctx.stroke()
 
 
-    // Draw rect around pool table
-    ctx.strokeStyle = '#55ff55'
-    ctx.lineWidth = 4
-    ctx.beginPath()
-    ctx.rect(
-        tableRectInner.x,
-        tableRectInner.y,
-        tableRectInner.w,
-        tableRectInner.h
-    )
-    ctx.stroke()
+    if (isPlayingGame()) {
 
-    // Draw rect around pool table
-    ctx.strokeStyle = '#55ff55'
-    ctx.lineWidth = 4
-    ctx.beginPath()
-    ctx.rect(
-        tableRectOuter.x,
-        tableRectOuter.y,
-        tableRectOuter.w,
-        tableRectOuter.h
-    )
-    ctx.stroke()
+        // Draw rect around pool table
+        ctx.strokeStyle = '#55ff55'
+        ctx.lineWidth = 4
+        ctx.beginPath()
+        ctx.rect(
+            tableRectInner.x,
+            tableRectInner.y,
+            tableRectInner.w,
+            tableRectInner.h
+        )
+        ctx.stroke()
 
+        // Draw rect around pool table
+        ctx.strokeStyle = '#55ff55'
+        ctx.lineWidth = 4
+        ctx.beginPath()
+        ctx.rect(
+            tableRectOuter.x,
+            tableRectOuter.y,
+            tableRectOuter.w,
+            tableRectOuter.h
+        )
+        ctx.stroke()
 
-    let aimCircle = findAimCircle()
+        // Find the position of the aim circle
+        let aimCircle = findAimCircle()
     
-    if (aimCircle) extendAimLine(aimCircle)
+        // Extend the aim line
+        if (aimCircle) extendAimLine(aimCircle)
+    }
 
 
     overlay.render = window.requestAnimationFrame(render)
