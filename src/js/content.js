@@ -132,7 +132,7 @@ function findAimCircle() {
 //               + getWhiteness(getIndex(x - WHITE_CIRCLE_RADIUS_SQRT2, y + WHITE_CIRCLE_RADIUS_SQRT2))
 //               + getWhiteness(getIndex(x - WHITE_CIRCLE_RADIUS_SQRT2, y - WHITE_CIRCLE_RADIUS_SQRT2))
               
-            console.log(x, y, maxCircleValue)
+            console.log(x, y)
               
 
             // Draw rect around pool table
@@ -233,8 +233,8 @@ function extendAimLine(aimCircle) {
 
 // Determines whether or not player is in a game
 PLAYING_GAME_TEST_POINTS = [
-    { x:107+5, y:194+5, r:18, g:26, b:38 },
-    { x:107+10, y:194+10, r:60, g:52, b:64 }
+    { x:100, y:20, r:56, g:54, b:68 },
+    { x:100, y:60, r:80, g:79, b:98 }
 ]
 function isPlayingGame() {
     for (testPoint of PLAYING_GAME_TEST_POINTS) {
@@ -302,7 +302,6 @@ function render() {
         // Extend the aim line
         if (aimCircle) extendAimLine(aimCircle)
     }
-
 
     overlay.render = window.requestAnimationFrame(render)
 }
