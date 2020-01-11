@@ -82,8 +82,6 @@ tableRectOuter = {
     h: Math.round(gh * 0.677),
 }
 
-WHITE_CIRCLE_RADIUS = 13
-WHITE_CIRCLE_RADIUS_SQRT2 = Math.round(WHITE_CIRCLE_RADIUS * Math.SQRT2)
 
 
 // Returns the index in the gamePixels array of a given x,y coord on gameCanvas
@@ -105,50 +103,31 @@ function getWhiteness(index) {
 
 /**
  * Finds the centre of the white circle used for aiming pool shots.
- * 
- * Often there are multiple pixels which satisfy the requirements, thus I
- * should implement a system which averages out these potential spots to give a
- * more accurate location.
  */
+AIM_CIRCLE_RADIUS = 13
 function findAimCircle() {
     for (let y = tableRectOuter.y; y < tableRectOuter.y + tableRectOuter.h; y++) {
         for (let x = tableRectOuter.x; x < tableRectOuter.x + tableRectOuter.w; x++) {
             /*
-                Check center and +-10 pixels in each direction for ~whites
-                The larger the circle value, the more likely this pixel is the center
-                of the white circle.
+                Check center and AIM_CIRCLE_RADIUS pixels in each direction for #FFF.
+                The aim circle seems to be the only point in the table which satisfies
+                the condition of having white in the center and AIM_CIRCLE_RADIUS
+                pixels in all directions at once.
             */
 
-            if ((mm = getWhiteness(getIndex(x, y))) <= 760) continue
-            if ((lm = getWhiteness(getIndex(x - WHITE_CIRCLE_RADIUS, y))) <= 760) continue
-            if ((rm = getWhiteness(getIndex(x + WHITE_CIRCLE_RADIUS, y))) <= 760) continue
-            if ((mb = getWhiteness(getIndex(x, y - WHITE_CIRCLE_RADIUS))) <= 760) continue
-            if ((mt = getWhiteness(getIndex(x, y + WHITE_CIRCLE_RADIUS))) <= 760) continue
+            if (getWhiteness(getIndex(x, y)) !== 765) continue
+            if (getWhiteness(getIndex(x - AIM_CIRCLE_RADIUS, y)) !== 765) continue
+            if (getWhiteness(getIndex(x + AIM_CIRCLE_RADIUS, y)) !== 765) continue
+            if (getWhiteness(getIndex(x, y - AIM_CIRCLE_RADIUS)) !== 765) continue
+            if (getWhiteness(getIndex(x, y + AIM_CIRCLE_RADIUS)) !== 765) continue
             
-            circleValue = mm + lm + rm + mb + mt
-
-//               + getWhiteness(getIndex(x + WHITE_CIRCLE_RADIUS_SQRT2, y + WHITE_CIRCLE_RADIUS_SQRT2))
-//               + getWhiteness(getIndex(x + WHITE_CIRCLE_RADIUS_SQRT2, y - WHITE_CIRCLE_RADIUS_SQRT2))
-//               + getWhiteness(getIndex(x - WHITE_CIRCLE_RADIUS_SQRT2, y + WHITE_CIRCLE_RADIUS_SQRT2))
-//               + getWhiteness(getIndex(x - WHITE_CIRCLE_RADIUS_SQRT2, y - WHITE_CIRCLE_RADIUS_SQRT2))
-              
-            console.log(x, y)
-              
-
-            // Draw rect around pool table
+            // Draw red dot in center of aim circle
             ctx.fillStyle = 'red'
             ctx.beginPath()
             ctx.arc(x, y, 2, 0, 2 * Math.PI, false)
             ctx.fill()
 
-//             ctx.beginPath()
-//             ctx.arc(x + WHITE_CIRCLE_RADIUS, y, 2, 0, 2 * Math.PI, false)
-//             ctx.fill()
-
-//             ctx.beginPath()
-//             ctx.arc(x, y + WHITE_CIRCLE_RADIUS, 2, 0, 2 * Math.PI, false)
-//             ctx.fill()
-
+            console.log(x, y)
             return { x, y }
         }
     }
