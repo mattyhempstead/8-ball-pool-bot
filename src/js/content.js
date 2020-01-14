@@ -89,6 +89,14 @@ function getIndex(x, y) {
     return 4 * ((gh - y) * gw + x)
 }
 
+function getPixel(x, y) {
+    return [
+        gamePixels[getIndex(x,y)],
+        gamePixels[getIndex(x,y)+1],
+        gamePixels[getIndex(x,y)+2]
+    ]
+}
+
 // Returns a number between 0 - 765 (lower is whiter)
 // Index is assumed to be the index of the red value in the pixel
 function getWhiteness(index) {
@@ -100,43 +108,10 @@ function getWhiteness(index) {
 }
 
 
-
-/**
- * Finds the centre of the white circle used for aiming pool shots.
- */
-AIM_CIRCLE_RADIUS = 13
-function findAimCircle() {
-    for (let y = tableRectOuter.y; y < tableRectOuter.y + tableRectOuter.h; y++) {
-        for (let x = tableRectOuter.x; x < tableRectOuter.x + tableRectOuter.w; x++) {
-            /*
-                Check center and AIM_CIRCLE_RADIUS pixels in each direction for #FFF.
-                The aim circle seems to be the only point in the table which satisfies
-                the condition of having white in the center and AIM_CIRCLE_RADIUS
-                pixels in all directions at once.
-            */
-
-            if (getWhiteness(getIndex(x, y)) !== 765) continue
-            if (getWhiteness(getIndex(x - AIM_CIRCLE_RADIUS, y)) !== 765) continue
-            if (getWhiteness(getIndex(x + AIM_CIRCLE_RADIUS, y)) !== 765) continue
-            if (getWhiteness(getIndex(x, y - AIM_CIRCLE_RADIUS)) !== 765) continue
-            if (getWhiteness(getIndex(x, y + AIM_CIRCLE_RADIUS)) !== 765) continue
-            
-            // Draw red dot in center of aim circle
-            ctx.fillStyle = 'red'
-            ctx.beginPath()
-            ctx.arc(x, y, 2, 0, 2 * Math.PI, false)
-            ctx.fill()
-
-            console.log(x, y)
-            return { x, y }
-        }
-    }
-}
-
-
 // Extends the aim assist line for the ball being hit
 LINE_RADIUS_CHECK_INNER = 9
-LINE_RADIUS_CHECK_MIDDLE = 26
+LINE_RADIUS_CHECK_BORDER = 23
+LINE_RADIUS_CHECK_MIDDLE = 27
 LINE_RADIUS_CHECK_OUTER = 30
 function extendAimLine(aimCircle) {
 
@@ -144,6 +119,9 @@ function extendAimLine(aimCircle) {
 //     ctx.lineWidth = 1
 //     ctx.beginPath()
 //     ctx.arc(aimCircle.x, aimCircle.y, LINE_RADIUS_CHECK_INNER, 0, 2 * Math.PI, false);
+//     ctx.stroke()
+//     ctx.beginPath()
+//     ctx.arc(aimCircle.x, aimCircle.y, LINE_RADIUS_CHECK_BORDER, 0, 2 * Math.PI, false);
 //     ctx.stroke()
 //     ctx.beginPath()
 //     ctx.arc(aimCircle.x, aimCircle.y, LINE_RADIUS_CHECK_MIDDLE, 0, 2 * Math.PI, false);
@@ -158,23 +136,40 @@ function extendAimLine(aimCircle) {
     let angleSum = 0
     let angleCount = 0
 
-    for (let angle = 0; angle < 2*Math.PI; angle += 0.03) {
+    let darkestValue = 765
+    let darkestAngle = 0
 
-        let xMiddle = aimCircle.x + Math.round(LINE_RADIUS_CHECK_MIDDLE * Math.cos(angle))
-        let yMiddle = aimCircle.y + Math.round(LINE_RADIUS_CHECK_MIDDLE * Math.sin(angle))
+    for (let angle = 0; angle < 2*Math.PI; angle += 0.02) {
+
+        /*
+            I could check a small angle offset remains white.
+            This would ensure the chosen angle is the centre of the thick aim
+            line rather than potentially one of the edges.
+        */
+
+        let xMiddle = Math.round(aimCircle.x + LINE_RADIUS_CHECK_MIDDLE * Math.cos(angle))
+        let yMiddle = Math.round(aimCircle.y + LINE_RADIUS_CHECK_MIDDLE * Math.sin(angle))
         if (getWhiteness(getIndex(xMiddle, yMiddle)) !== 765) continue
 
-        let xOuter = aimCircle.x + Math.round(LINE_RADIUS_CHECK_OUTER * Math.cos(angle))
-        let yOuter = aimCircle.y + Math.round(LINE_RADIUS_CHECK_OUTER * Math.sin(angle))
+        let xOuter = Math.round(aimCircle.x + LINE_RADIUS_CHECK_OUTER * Math.cos(angle))
+        let yOuter = Math.round(aimCircle.y + LINE_RADIUS_CHECK_OUTER * Math.sin(angle))
         if (getWhiteness(getIndex(xOuter, yOuter)) !== 765) continue
 
-        let xOuter2 = aimCircle.x + Math.round(28 * Math.cos(angle))
-        let yOuter2 = aimCircle.y + Math.round(28 * Math.sin(angle))
+        let xOuter2 = Math.round(aimCircle.x + 28 * Math.cos(angle))
+        let yOuter2 = Math.round(aimCircle.y + 28 * Math.sin(angle))
         if (getWhiteness(getIndex(xOuter2, yOuter2)) !== 765) continue
 
-        let xInner = aimCircle.x + Math.round(LINE_RADIUS_CHECK_INNER * Math.cos(angle))
-        let yInner = aimCircle.y + Math.round(LINE_RADIUS_CHECK_INNER * Math.sin(angle))
+        let xInner = Math.round(aimCircle.x + LINE_RADIUS_CHECK_INNER * Math.cos(angle))
+        let yInner = Math.round(aimCircle.y + LINE_RADIUS_CHECK_INNER * Math.sin(angle))
         if (getWhiteness(getIndex(xInner, yInner)) === 765) continue
+
+        let xBorder = Math.round(aimCircle.x + LINE_RADIUS_CHECK_BORDER * Math.cos(angle))
+        let yBorder = Math.round(aimCircle.y + LINE_RADIUS_CHECK_BORDER * Math.sin(angle))
+        let darkness = getWhiteness(getIndex(xBorder, yBorder))
+        if (darkness <= darkestValue) {
+            darkestValue = darkness
+            darkestAngle = angle
+        }
 
         angleSum += angle;
         angleCount++;
@@ -183,7 +178,11 @@ function extendAimLine(aimCircle) {
 
     if (angleCount === 0) return
 
-    let angle = angleSum / angleCount
+    let angle = darkestAngle//angleSum / angleCount
+
+//     let xBorder = Math.round(aimCircle.x + LINE_RADIUS_CHECK_BORDER * Math.cos(angle))
+//     let yBorder = Math.round(aimCircle.y + LINE_RADIUS_CHECK_BORDER * Math.sin(angle))
+//     console.log(getWhiteness(getIndex(xBorder, yBorder)), darkestValue)
 
 //     ctx.beginPath()
 //     ctx.arc(xMiddle, yMiddle, 2, 0, 2 * Math.PI, false)
@@ -200,7 +199,7 @@ function extendAimLine(aimCircle) {
     yEnd = aimCircle.y + (xEnd - aimCircle.x) * Math.tan(angle)
 
 
-    ctx.strokeStyle = 'red'
+    ctx.strokeStyle = 'orange'
     ctx.lineWidth = 2
     ctx.beginPath();
     ctx.moveTo(aimCircle.x, aimCircle.y);
@@ -280,6 +279,14 @@ function render() {
     
         // Extend the aim line
         if (aimCircle) extendAimLine(aimCircle)
+
+        if (aimCircle) {
+            // Draw red dot in center of aim circle
+            ctx.fillStyle = 'red'
+            ctx.beginPath()
+            ctx.arc(aimCircle.x, aimCircle.y, 1, 0, 2 * Math.PI, false)
+            ctx.fill()
+        }
     }
 
     overlay.render = window.requestAnimationFrame(render)
