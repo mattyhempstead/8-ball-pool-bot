@@ -1,15 +1,33 @@
 {
     "name": "8 Ball Pool Cheats",
     "description": "Cheats for Miniclip's 8 Ball Pool",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "manifest_version": 2,
     "content_scripts": [
         {
             "matches": [
-                "https://prod-web-pool.miniclip.com/*"
+                "https://prod-web-pool.miniclip.com/*",
+                "https://miniclip.com/games/fbshare/165073083517174/*"
             ],
            "js": [
                 "js/inject.js"
+            ],
+            "css": [
+                "css/content-game.css"
+            ],
+            "all_frames": true,
+            "run_at" : "document_end"
+        },
+        {
+            "matches": [
+                "https://www.miniclip.com/games/8-ball-pool-multiplayer/*",
+                "https://miniclip.com/games/8-ball-pool-multiplayer/*"
+            ],
+           "js": [
+                "js/content-dom.js"
+            ],
+            "css": [
+                "css/content-main.css"
             ],
             "all_frames": true,
             "run_at" : "document_end"

@@ -1,0 +1,46 @@
+
+#site-header {
+    background: #00ff00 !important;   
+}
+
+#smartphone-promo,
+section.secondary,
+div.container,
+div.game-toolbar,
+div.game-embed-wrapper > header.game,
+div.game-embed-wrapper > header.social,
+nav#pool-menu-after
+{
+    display: none;
+}
+
+div#site-container {
+    padding-top: 0px;
+    height: 768px;
+}
+
+div#game-content {
+    margin: 0px !important;
+    width: 1154px !important;
+}
+
+section#game-container {
+    border: 0px;
+    margin-right: 0px !important;
+}
+
+div#game-embed {
+    width: 1154px !important;
+}
+
+div#canvas-container {
+    width: 1050px;
+}
+
+/*
+    1154
+    768
+
+    901.56
+    600
+*/
