@@ -98,7 +98,7 @@ function findAimCircleCentre(aimCircle) {
         let radius = circleMat.data32F[i * 3 + 2];
         let center = new cv.Point(x, y);
         cv.circle(aimCircleTempCanvMat, center, radius, [255, 0, 0, 255], 1);
-        console.log(x,y,radius)
+        // console.log(x,y,radius)
     }
     cv.imshow(aimCircleTempCanv, aimCircleTempCanvMat);
 
