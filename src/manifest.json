@@ -35,5 +35,15 @@
     ],
     "web_accessible_resources": [
         "js/webgl-context-wrapper.js"
+    ],
+    "background": {
+        "scripts": [
+            "js/background.js"
+        ],
+        "persistant": false
+    },
+    "permissions": [
+        "https://www.miniclip.com/games/8-ball-pool-multiplayer/*",
+        "https://miniclip.com/games/8-ball-pool-multiplayer/*"
     ]
 }

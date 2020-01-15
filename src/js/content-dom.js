@@ -8,4 +8,34 @@ const domContent = document.createElement('div')
 document.body.appendChild(domContent)
 
 
-domContent.innerHTML = 'Test'
+// Add button to execute opencv.js
+el = document.createElement('button')
+domContent.appendChild(el)
+el.innerHTML = 'opencv.js'
+el.onclick = () => { chrome.runtime.sendMessage({script: "opencv.js"}) }
+
+
+// Add button to execute main script
+el = document.createElement('button')
+domContent.appendChild(el)
+el.innerHTML = 'main script'
+el.onclick = mainScript = () => { 
+  chrome.runtime.sendMessage({script: "findAimCircleCentre.js"})
+  chrome.runtime.sendMessage({script: "extendAimLine.js"})
+  chrome.runtime.sendMessage({script: "content.js"})
+}
+
+
+// Add button to execute content
+el = document.createElement('button')
+domContent.appendChild(el)
+el.innerHTML = 'detectBalls.js'
+el.onclick = () => { 
+  chrome.runtime.sendMessage({script: "detectBalls.js"})
+}
+
+
+el = document.createElement('p')
+domContent.appendChild(el)
+el.id = 'text'
+el.innerHTML = 'text'
