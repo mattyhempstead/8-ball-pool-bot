@@ -132,7 +132,15 @@ OPPONENT_TURN_PIXEL = { x:690, y:16 };
 // 2 - waiting stage
 shootingStage = 0; 
 
-function render() {
+
+fps = {
+    frameCount: 0,
+    nextFrameTimestamp: 1000,
+    fps: 0
+}
+
+
+function render(timestamp) {
     // Read pool game canvas pixels
     gl.readPixels(
         0,
@@ -145,6 +153,17 @@ function render() {
     )
 
     ctx.clearRect(0, 0, gw, gh)
+
+    // Calculate and render fps
+    fps.frameCount++
+    if (timestamp >= fps.nextFrameTimestamp) {
+        fps.nextFrameTimestamp = timestamp + 1000
+        fps.fps = fps.frameCount
+        fps.frameCount = 0
+    }
+    ctx.font = "16px Arial";
+    ctx.fillStyle = '#00ff00'
+    ctx.fillText(fps.fps, 5, 20);
 
     // Draw a border to show cheat mode activated
     ctx.strokeStyle = 'red'
