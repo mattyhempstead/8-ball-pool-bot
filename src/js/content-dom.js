@@ -20,6 +20,7 @@ el = document.createElement('button')
 domContent.appendChild(el)
 el.innerHTML = 'main script'
 el.onclick = mainScript = () => { 
+  chrome.runtime.sendMessage({script: "updateShootingStage.js"})
   chrome.runtime.sendMessage({script: "findAimCircleCentre.js"})
   chrome.runtime.sendMessage({script: "extendAimLine.js"})
   chrome.runtime.sendMessage({script: "content.js"})
