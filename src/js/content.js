@@ -109,18 +109,22 @@ function getWhiteness(index) {
 
 
 // Determines whether or not player is in a game
+// Only one of these points needs to be true for the player to be in a game
+// The reason we have 2 is that the pool cue will occasionally cover up one of the points
 PLAYING_GAME_TEST_POINTS = [
-    { x:100, y:20, r:56, g:54, b:68 },
-    { x:100, y:60, r:80, g:79, b:98 }
+    { x:523, y:60, r:79, g:75, b:95 },
+    { x:631, y:60, r:84, g:81, b:100 }
 ]
 function isPlayingGame() {
     for (testPoint of PLAYING_GAME_TEST_POINTS) {
-        if (gamePixels[getIndex(testPoint.x, testPoint.y)    ] !== testPoint.r) return false
-        if (gamePixels[getIndex(testPoint.x, testPoint.y) + 1] !== testPoint.g) return false
-        if (gamePixels[getIndex(testPoint.x, testPoint.y) + 2] !== testPoint.b) return false
+        testPixel = getPixel(testPoint.x, testPoint.y)
+        if (testPixel[0] === testPoint.r 
+         && testPixel[1] === testPoint.g
+         && testPixel[2] === testPoint.b) {
+            return true
+        }
     }
-
-    return true
+    return false
 }
 
 
