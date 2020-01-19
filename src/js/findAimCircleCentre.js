@@ -105,7 +105,7 @@ function findAimCircleCentre(aimCircle) {
 
 
     // If no circle can be found for some reason, simply return the original circle
-    if (circleMat.cols.length === 0) return aimCircle
+    if (circleMat.cols === 0) return aimCircle
 
     return {
         x: aimCircle.x + circleMat.data32F[0] - AIM_CIRCLE_TEMP_CANV_SIZE/2,
