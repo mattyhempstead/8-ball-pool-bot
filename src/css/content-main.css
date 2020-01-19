@@ -1,3 +1,12 @@
+html {
+    background-color: white !important;
+}
+
+body {
+    margin-top: 10px !important;
+    margin-left: 10px !important;
+    background-color: white !important;
+}
 
 #site-header {
     background: #00ff00 !important;   
@@ -15,8 +24,12 @@ nav#pool-menu-after
 }
 
 div#site-container {
-    padding-top: 0px;
+    padding-top: 0px !important;
+    background-color: white !important;
+    background-image: none !important;
+    border: 0px !important;
     height: 768px;
+    margin-bottom: 10px;
 }
 
 div#game-content {
