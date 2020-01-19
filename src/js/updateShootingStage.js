@@ -1,4 +1,9 @@
 
+/*
+  I believe the cue has the possibility of interfering with this function.
+  Further testing should be done.
+*/
+
 
 PLAYER_TURN_PIXEL = { x:475, y:16 };
 OPPONENT_TURN_PIXEL = { x:690, y:16 };
@@ -20,6 +25,7 @@ function updateShootingStage() {
   // If opponents turn and we go green, it must be our turn to shoot
   if (shootingStage === 0 && playerTurnLoadingPixel[0] === 0 && playerTurnLoadingPixel[1] === 255 && playerTurnLoadingPixel[2] === 0) {
       console.log('opponent has finished turn')
+      detectBalls();
       shootingStage = 2
       window.setTimeout(() => { 
           shootingStage = 1
@@ -33,6 +39,7 @@ function updateShootingStage() {
       // if opponent is green, we must have finished our turn to shoot
       if (opponentTurnLoadingPixel[0] === 0 && opponentTurnLoadingPixel[1] === 255 && opponentTurnLoadingPixel[2] === 0) {
           console.log('player has finished turn')
+        //   detectBalls();
           shootingStage = 2
           window.setTimeout(() => { 
               shootingStage = 0
@@ -43,6 +50,7 @@ function updateShootingStage() {
       // otherwise if we are green, player must have potted a ball
       else if (playerTurnLoadingPixel[0] === 0 && playerTurnLoadingPixel[1] === 255 && playerTurnLoadingPixel[2] === 0) {
           console.log('player has potted a ball')
+          detectBalls();
           shootingStage = 2
           window.setTimeout(() => { 
               shootingStage = 1

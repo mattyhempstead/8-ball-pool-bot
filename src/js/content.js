@@ -8,25 +8,11 @@ for (let oldOverlay of iFrameDocument.getElementsByClassName('overlay')) {
 
 
 gameCanvas = iFrameDocument.getElementById('engine')
-gw = gameCanvas.width
-gh = gameCanvas.height
 gl = gameCanvas.getContext("webgl2") || gameCanvas.getContext('webgl')
 
 if (!gl.getContextAttributes().preserveDrawingBuffer) {
     throw Error("webgl canvas context has attribute preserveDrawingBuffer set false and is thus not readable.")
 }
-
-gamePixels = new Uint8Array(gl.drawingBufferWidth * gl.drawingBufferHeight * 4)
-
-gameGrid = []
-for (let y = 0; y < gh; y++) {
-    gameGrid.push([])
-    for (let x = 0; x < gw; x++) {
-        gameGrid[y].push([0,0,0])
-    }
-}
-
-
 
 // Just in case this ever becomes true and I don't realise this is causing issues
 if (gl.drawingBufferWidth != gw || gl.drawingBufferHeight != gh) {
@@ -67,20 +53,6 @@ ctx = overlay.getContext('2d')
 
 
 */
-
-tableRectInner = {
-    x: Math.round(gw * 0.117),
-    y: Math.round(gh * 0.293),
-    w: Math.round(gw * 0.766),
-    h: Math.round(gh * 0.600),
-}
-
-tableRectOuter = {
-    x: Math.round(gw * 0.093),
-    y: Math.round(gh * 0.253),
-    w: Math.round(gw * 0.816),
-    h: Math.round(gh * 0.677),
-}
 
 
 
@@ -135,8 +107,13 @@ fps = {
     fps: 0
 }
 
+gamePixelsPrevious = undefined; //new Uint8ClampedArray(gl.drawingBufferWidth * gl.drawingBufferHeight * 4)
+gamePixels = new Uint8Array(gl.drawingBufferWidth * gl.drawingBufferHeight * 4)
 
 function render(timestamp) {
+    // Store the previous frame game pixels before next read
+    gamePixelsPrevious = new Uint8ClampedArray(gamePixels)
+    
     // Read pool game canvas pixels
     gl.readPixels(
         0,
