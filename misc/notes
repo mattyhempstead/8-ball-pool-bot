@@ -1,0 +1,33 @@
+
+
+
+"https://www.miniclip.com/games/8-ball-pool-multiplayer/*",
+"https://miniclip.com/games/8-ball-pool-multiplayer/*",
+
+
+
+Pool Ball Detection
+
+All balls are surrounded by a thin dark shadow which I can use to detect the balls.
+
+The shadows themselves can get quite light and vary from greyscale values.
+
+
+
+When the turn transfers from opponent to the current player, the bar which 
+displays the timer on the current player will flash green (0,255,0).
+The frame before this happens, the bar will be grey (96,96,96) and all balls
+will be static and the cue will not be visible.
+This should be the frame which I use to determine the positions of each ball on the table.
+
+If instead the player pockets a ball, their bar will transform from the state
+it was in when the shot was made, to full green (0,255,0).
+The frame before full green should be when I record ball positions.
+I can detect this by looking at the loading pixels which have already been 
+removed. These pixels should be (49,46,57), however this tets must be pixel
+perfect in the y direction.
+Also, since this method relies on the loading bar being slightly removed, I must
+ensure that the previous potting shot was slow enough that some of the bar has
+moved away (although this seems unlikely to happen in practice).
+
+

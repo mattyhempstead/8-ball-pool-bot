@@ -24,10 +24,11 @@ if (document.getElementById('tempCanv') == null) {
     tempCanv.id = 'tempCanv'
     tempCanv.width = tableRectOuter.w
     tempCanv.height = tableRectOuter.h
-    tempCanv.style.width = tableRectOuter.w
-    tempCanv.style.height = tableRectOuter.h
-    tempCanv.style.border = '1px solid black'
-    tempCanv.style['margin-left'] = '5px'
+    tempCanv.style['width'] = tableRectOuter.w
+    tempCanv.style['height'] = tableRectOuter.h
+    tempCanv.style['border'] = '1px solid black'
+    tempCanv.style['margin'] = '5px'
+    tempCanv.style['display'] = 'block'
 } else {
     tempCanv = document.getElementById('tempCanv')
 }
@@ -46,16 +47,16 @@ function detectBalls() {
     cv.cvtColor(tempCanvMat, tempCanvMat, cv.COLOR_RGBA2GRAY)
     // cv.imshow(tempCanv, tempCanvMat);
 
-
     // Get circles
     circleMat = new cv.Mat()
     PARAM_1 = 10
     PARAM_2 = 15
     cv.HoughCircles(tempCanvMat, circleMat, cv.HOUGH_GRADIENT, 1, 25, PARAM_1, PARAM_2, 12, 14);
 
-
     cv.cvtColor(tempCanvMat, tempCanvMat, cv.COLOR_GRAY2RGBA)
 
+    // Remove all findBallCentre canvases
+    Array.from(document.getElementsByClassName('ballTempCanv')).forEach(el => document.body.removeChild(el))
 
     // Draw circles on image
     balls = []
@@ -64,13 +65,19 @@ function detectBalls() {
         let y = circleMat.data32F[i * 3 + 1];
         let radius = circleMat.data32F[i * 3 + 2];
 
-        balls.push(findBallCentre({x,y,radius}));
+        const oldBallPos = { x, y, radius, colour: [255, 0, 0, 255] }
+        balls.push(findBallCentre(oldBallPos));
 
-        // let center = new cv.Point(x, y);
-        // cv.circle(tempCanvMat, center, radius, [255, 0, 0, 255], 1);
+        if (oldBallPos !== balls[i]) {
+            let center = new cv.Point(x, y);
+            // cv.circle(tempCanvMat, center, radius, [255, 0, 0, 255], 1);
+            cv.circle(tempCanvMat, center, 1, [255, 0, 0, 255], 2);
+        }
 
         let centerNew = new cv.Point(balls[i].x, balls[i].y);
-        cv.circle(tempCanvMat, centerNew, balls[i].radius, [0, 255, 0, 255], 1);
+        // cv.circle(tempCanvMat, centerNew, balls[i].radius, balls[i].colour, 1);
+
+        cv.circle(tempCanvMat, centerNew, 1, [0, 255, 0, 255], 2);
 
         console.log({x,y,radius}, balls[i])
     }
@@ -84,30 +91,27 @@ function detectBalls() {
 
 
 
-BALL_TEMP_CANV_SIZE = 34
-ballTempCanv = undefined
-ballTempCtx = undefined
-if (document.getElementById('ballTempCanv') == null) {
-    ballTempCanv = document.createElement('canvas')
-    document.body.appendChild(ballTempCanv)
-    ballTempCanv.id = 'ballTempCanv'
-    ballTempCanv.width = BALL_TEMP_CANV_SIZE
-    ballTempCanv.height = BALL_TEMP_CANV_SIZE
-    ballTempCanv.style.width = BALL_TEMP_CANV_SIZE
-    ballTempCanv.style.height = BALL_TEMP_CANV_SIZE
-    ballTempCanv.style.border = '1px solid black'
-    ballTempCanv.style['margin-left'] = '5px'
-    ballTempCtx = ballTempCanv.getContext('2d')
-} else {
-    ballTempCanv = document.getElementById('ballTempCanv')
-    ballTempCtx = ballTempCanv.getContext('2d')
-}
+BALL_TEMP_CANV_SIZE = 38
 
 /**
  * Uses the general location of a pool ball to find a more accurate centre
  * @param {*} ball the ball 
  */
 function findBallCentre(ball) {
+
+    // Create a temp canvas to draw on
+    const ballTempCanv = document.createElement('canvas')
+    const ballTempCtx = ballTempCanv.getContext('2d')
+    document.body.appendChild(ballTempCanv)
+    ballTempCanv.classList.add('ballTempCanv')
+    ballTempCanv.width = BALL_TEMP_CANV_SIZE
+    ballTempCanv.height = BALL_TEMP_CANV_SIZE
+    ballTempCanv.style.width = BALL_TEMP_CANV_SIZE
+    ballTempCanv.style.height = BALL_TEMP_CANV_SIZE
+    ballTempCanv.style.border = '1px solid black'
+    ballTempCanv.style['margin-left'] = '5px'
+
+
 
     ballTempCtx.drawImage(
         tempCanv, 
@@ -125,8 +129,8 @@ function findBallCentre(ball) {
 
     // Get circles
     let ballTempMat = new cv.Mat()
-    PARAM_1 = 50
-    PARAM_2 = 20
+    PARAM_1 = 100
+    PARAM_2 = 10
     MIN_RADIUS = 14
     MAX_RADIUS = 15
     cv.HoughCircles(ballTempCanvMat, ballTempMat, cv.HOUGH_GRADIENT, 1, 20, PARAM_1, PARAM_2, MIN_RADIUS, MAX_RADIUS);
@@ -155,6 +159,7 @@ function findBallCentre(ball) {
     return {
         x: ball.x + x - BALL_TEMP_CANV_SIZE/2,
         y: ball.y - y + BALL_TEMP_CANV_SIZE/2,
-        radius: radius
+        radius: radius,
+        colour: [0, 255, 0, 255]
     }
 }
