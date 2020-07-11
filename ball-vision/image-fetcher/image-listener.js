@@ -18,12 +18,11 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.post('/', (req, res) => {
-  console.log("received request");
-  // console.log(req.body);
+  console.log("received image");
 
   let base64Data = req.body['image-data'].replace(/^data:image\/png;base64,/, "");
   const fileName = `../ball-images/${checksum(base64Data)}.png`;
-  require("fs").writeFile(fileName, base64Data, 'base64');
+  require("fs").writeFile(fileName, base64Data, 'base64', ()=>{});
 
   res.send('Success');
 });

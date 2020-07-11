@@ -2,9 +2,9 @@
   "name": "ball-detection",
   "version": "1.0.0",
   "description": "",
-  "main": "image-listen.js",
+  "main": "image-listener.js",
   "scripts": {
-    "start": "node image-listen.js"
+    "start": "node image-listener.js"
   },
   "author": "",
   "license": "ISC",
