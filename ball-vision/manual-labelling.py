@@ -1,5 +1,5 @@
 """
-    A script to declare the centre of a ball and classify it.
+    A script to allow the user to manually declare the centre of a ball and label it's type.
 """
 
 import matplotlib.pyplot as plt
@@ -9,12 +9,12 @@ import csv
 import os
 
 # checksum, type, x, y
-CLASSIFICATIONS_FILE_HEADER = "filename,type,x,y"
-CLASSIFICATIONS_FILE = "./ball-classifications.csv"
+LABELS_FILE_HEADER = "filename,type,x,y"
+LABELS_FILE = "./ball-labels.csv"
 
 ball_data = {}
-if os.path.isfile(CLASSIFICATIONS_FILE):
-    with open(CLASSIFICATIONS_FILE, "r") as file:
+if os.path.isfile(LABELS_FILE):
+    with open(LABELS_FILE, "r") as file:
         rows = [row[:-1].split(",") for row in file.readlines()[1:]]
         for row in rows:
             ball_data[row[0]] = [int(row[1]), float(row[2]), float(row[3])]
@@ -27,7 +27,7 @@ print("Read {} labelled balls".format(len(ball_data.keys())))
 #plt.ion()
 
 
-class Ball_Classifier(object):
+class Ball_Labeller(object):
     def __init__(self, ax):
         self.images = os.listdir('ball-images')
         self.current_image = None
@@ -111,8 +111,8 @@ class Ball_Classifier(object):
 
 
     def save_and_exit(self):
-        with open(CLASSIFICATIONS_FILE, "w") as file:
-            file.write(CLASSIFICATIONS_FILE_HEADER + "\n")
+        with open(LABELS_FILE, "w") as file:
+            file.write(LABELS_FILE_HEADER + "\n")
             for key in ball_data.keys():
                 row = ",".join([key, str(ball_data[key][0]), str(ball_data[key][1]), str(ball_data[key][2])])
                 row += "\n"
@@ -125,12 +125,12 @@ class Ball_Classifier(object):
 
 fig,ax = plt.subplots()
 
-ball_classifier = Ball_Classifier(ax)
+ball_labeller = Ball_Labeller(ax)
 
-fig.canvas.mpl_connect('motion_notify_event', ball_classifier.mouse_move)
-fig.canvas.mpl_connect('button_press_event', ball_classifier.mouse_click)
+fig.canvas.mpl_connect('motion_notify_event', ball_labeller.mouse_move)
+fig.canvas.mpl_connect('button_press_event', ball_labeller.mouse_click)
 
-ball_classifier.next_image()
+ball_labeller.next_image()
 
 plt.show()
 
