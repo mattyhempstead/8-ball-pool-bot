@@ -1,6 +1,8 @@
 
 console.log('Starting server to listen for ball images');
 
+const fs = require("fs");
+
 const checksum = require('checksum');
 
 const express = require('express');
@@ -22,7 +24,12 @@ app.post('/', (req, res) => {
 
   let base64Data = req.body['image-data'].replace(/^data:image\/png;base64,/, "");
   const fileName = `../ball-images/${checksum(base64Data)}.png`;
-  require("fs").writeFile(fileName, base64Data, 'base64', ()=>{});
+  fs.writeFile(fileName, base64Data, 'base64', ()=>{});
+  
+  fs.readdir('../ball-images', (err, files) => {
+    console.log(`Currently downloaded ${files.length} images.`);
+  });
+
 
   res.send('Success');
 });
