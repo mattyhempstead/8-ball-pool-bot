@@ -24,6 +24,8 @@ app.post('/', (req, res) => {
 
   let base64Data = req.body['image-data'].replace(/^data:image\/png;base64,/, "");
   const fileName = `../ball-images/${checksum(base64Data)}.png`;
+  console.log(fileName);
+
   fs.writeFile(fileName, base64Data, 'base64', ()=>{});
   
   fs.readdir('../ball-images', (err, files) => {

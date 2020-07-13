@@ -5,7 +5,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.image as mpimg
-import csv
 import os
 
 # checksum, type, x, y
@@ -24,12 +23,14 @@ print("Read {} labelled balls".format(len(ball_data.keys())))
 # print(ball_data)
 
 
-#plt.ion()
+plt.ion()
 
 
 class Ball_Labeller(object):
     def __init__(self, ax):
         self.images = os.listdir('ball-images')
+
+        self.current_idx = -1
         self.current_image = None
 
         self.ax = ax
@@ -59,14 +60,14 @@ class Ball_Labeller(object):
 
 
     def mouse_click(self, event):
-        if not self.clicking:
-            return
-
-        if not event.inaxes:
+        if (event.dblclick) or (not event.inaxes) or (not self.clicking):
             return
 
         if event.button == 3:
-            self.save_and_exit()
+            print("Skipping image")
+            self.next_image()
+            self.clicking = True
+            return
 
 
         prev_center = plt.Circle((event.xdata, event.ydata), 0.2, color='#00ffff')
@@ -88,6 +89,7 @@ class Ball_Labeller(object):
 
         self.clicking = True
 
+        print("Labelled {}".format(self.current_image))
         self.next_image()
 
     
@@ -95,30 +97,25 @@ class Ball_Labeller(object):
         self.ax.clear()
 
         # Find first un-labelled image
-        missing_labels = [i for i in self.images if i not in ball_data.keys()]
-        if len(missing_labels) == 0:
-            self.save_and_exit()
-        
-        self.current_image = missing_labels[0]
+        # missing_labels = [i for i in self.images if i not in ball_data.keys()]
+        # if len(missing_labels) == 0:
+        #     self.save_and_exit()
+
+        self.current_idx = (self.current_idx + 1) % len(self.images)
+        self.current_image = self.images[self.current_idx]
+
+        # self.current_image = missing_labels[0]
         img = mpimg.imread('ball-images/{}'.format(self.current_image))
-        
         self.ax.imshow(img)
 
-        # if self.current_image in ball_data:
-        #     prev_ball_data = ball_data[self.images[self.image_index]]
-        #     prev_center = plt.Circle((prev_ball_data[1], prev_ball_data[2]), 0.2, color='#00ff00')
-        #     self.ax.add_patch(prev_center)
+        if self.current_image in ball_data:
+            prev_ball_data = ball_data[self.current_image]
 
+            print("Currently labelled as {}".format(prev_ball_data[0]))
 
-    def save_and_exit(self):
-        with open(LABELS_FILE, "w") as file:
-            file.write(LABELS_FILE_HEADER + "\n")
-            for key in ball_data.keys():
-                row = ",".join([key, str(ball_data[key][0]), str(ball_data[key][1]), str(ball_data[key][2])])
-                row += "\n"
-                file.write(row)
+            prev_center = plt.Circle((prev_ball_data[1], prev_ball_data[2]), 0.2, color='#00ff00')
+            self.ax.add_patch(prev_center)
 
-        exit()
 
 
 
@@ -134,3 +131,12 @@ ball_labeller.next_image()
 
 plt.show()
 
+
+# Save when user closes plot
+print("Saving and Exiting")
+with open(LABELS_FILE, "w") as file:
+    file.write(LABELS_FILE_HEADER + "\n")
+    for key in ball_data.keys():
+        row = ",".join([key, str(ball_data[key][0]), str(ball_data[key][1]), str(ball_data[key][2])])
+        row += "\n"
+        file.write(row)
