@@ -1,0 +1,31 @@
+body {
+    overflow-y: scroll !important;
+}
+
+/*
+    Format the canvas to be full size.
+*/
+
+div#container {
+    width: 1154px !important;
+    height: 768px !important;
+}
+
+div#canvas-container {
+    transform: none !important;
+    margin: 0px;
+    margin-top: 10px;
+    width: 1154px !important;
+    height: 768px !important;
+    border: 1px dashed black;
+}
+
+
+/*
+    A div for script stuff.
+*/
+div#dom-content {
+    width: 1154px;
+    margin: auto;
+    margin-top: 10px;
+}
