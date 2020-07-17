@@ -130,7 +130,10 @@ GameLoop = class {
     
             this.gameState.updateShootingStage();
     
-            // // Find the position of the aim circle
+            
+
+
+            // Find the position of the aim circle
             // let aimCircle = findAimCircle();
         
             // // Extend the aim line
@@ -212,6 +215,11 @@ GameLoop = class {
             (testPixelA[0] >= 250 && testPixelA[1] >= 250 && testPixelA[2] >= 250)
          || (testPixelB[0] >= 250 && testPixelB[1] >= 250 && testPixelB[2] >= 250)
         );
+    }
+
+
+    renderAimLines = () => {
+        
     }
 
 }

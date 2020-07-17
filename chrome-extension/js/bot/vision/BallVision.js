@@ -71,7 +71,7 @@ BallVision = class {
     /**
      * Scans the pool table and finds information about all pool balls.
      */
-    detectBalls() {
+    async detectBalls() {
         console.log("detecting balls")
 
         // Note that this is flipped
@@ -90,16 +90,16 @@ BallVision = class {
         
         // Get circles
         const circleMat = new cv.Mat();
-        const PARAM_1 = 15
-        const PARAM_2 = 15
+        // const PARAM_1 = 15
+        // const PARAM_2 = 15
         // cv.HoughCircles(tempCanvMat, circleMat, cv.HOUGH_GRADIENT, 1, 25, PARAM_1, PARAM_2, 13, 15);
-        cv.HoughCircles(tempCanvMat, circleMat, cv.HOUGH_GRADIENT, 1, 13, 300, 10, 7, 13);
-    
+        // cv.HoughCircles(tempCanvMat, circleMat, cv.HOUGH_GRADIENT, 1, 13, 300, 10, 7, 13);
+        cv.HoughCircles(tempCanvMat, circleMat, cv.HOUGH_GRADIENT, 1, 13, 300, 10, 10, 13);
     
         cv.cvtColor(tempCanvMat, tempCanvMat, cv.COLOR_GRAY2RGBA);
     
     
-        // Remove all pre-existing findBallCentre canvases
+        // Remove all pre-existing findBallCenter canvases
         Array.from(document.getElementsByClassName('ballTempCanv'))
           .forEach(el => document.getElementById('dom-content').removeChild(el));
     
@@ -110,32 +110,31 @@ BallVision = class {
             let y = circleMat.data32F[i * 3 + 1];
             let radius = circleMat.data32F[i * 3 + 2];
     
-            const approxBallPos = { x, y, radius, colour: [255, 0, 0, 255] }
     
             let center = new cv.Point(x, y);
             cv.circle(tempCanvMat, center, 0.5, [255, 0, 0, 255], 2);
-            cv.circle(tempCanvMat, center, radius, [255, 0, 0, 255], 1);
-            
-            // sendDetectedBall(approxBallPos);
-            
-            // this.balls.push(this.findBallCentre(approxBallPos));
+            // cv.circle(tempCanvMat, center, 13, [255, 0, 0, 255], 1);
+        
+
+            const approxBallPos = { x, y };
+            // this.sendDetectedBall(approxBallPos);
+            this.balls.push(await this.findBallCenter(approxBallPos));
     
-            // if (approxBallPos !== this.balls[i]) {
-            //     let center = new cv.Point(x, y);
-            //     cv.circle(tempCanvMat, center, radius, [255, 0, 0, 255], 1);
-            //     cv.circle(tempCanvMat, center, 0.5, [255, 0, 0, 255], 2);
-            // }
-    
-            // let centerNew = new cv.Point(this.balls[i].x, this.balls[i].y);
-            // cv.circle(tempCanvMat, centerNew, this.balls[i].radius, this.balls[i].colour, 1);
-            // cv.circle(tempCanvMat, centerNew, 1, [0, 255, 0, 255], 2);
-    
-            // console.log({x,y,radius}, this.balls[i])
-        }
-    
-        // console.log(`detected ${this.balls.length} balls`);
+            let centerNew = new cv.Point(this.balls[i].x, this.balls[i].y);
+            cv.circle(tempCanvMat, centerNew, 0.5, [0, 255, 0, 255], 2);
+            cv.circle(tempCanvMat, centerNew, 13, [0, 255, 0, 255], 1);
+
+            console.log({x,y,radius}, this.balls[i]);
+        }    
+        console.log(`detected ${this.balls.length} balls`);
     
         cv.imshow(this.tempCanv, tempCanvMat);
+
+        for (let ball of this.balls) {
+            this.tempCtx.font = "20px monospace";
+            this.tempCtx.fillText(ball.type, ball.x-6*(""+ball.type).length, ball.y-18);
+        }
+
     }
 
 
@@ -144,73 +143,91 @@ BallVision = class {
      * find a more accurate center.
      * @param {*} ball the ball (ball) -> 🎱
      */
-    findBallCentre(ball) {
+    async findBallCenter(ball) {
         // Create a temp canvas to draw on
-        const ballTempCanv = document.createElement('canvas')
-        const ballTempCtx = ballTempCanv.getContext('2d')
-        domContent.appendChild(ballTempCanv)
-        ballTempCanv.classList.add('ballTempCanv')
-        ballTempCanv.width = BALL_TEMP_CANV_SIZE
-        ballTempCanv.height = BALL_TEMP_CANV_SIZE
-        ballTempCanv.style.width = BALL_TEMP_CANV_SIZE
-        ballTempCanv.style.height = BALL_TEMP_CANV_SIZE
-        ballTempCanv.style.border = '1px solid black'
-        ballTempCanv.style['margin-left'] = '5px'
-
+        const ballTempCanv = document.createElement('canvas');
+        const ballTempCtx = ballTempCanv.getContext('2d');
+        domContent.appendChild(ballTempCanv);
+        ballTempCanv.classList.add('ballTempCanv');
+        ballTempCanv.width = BALL_TEMP_CANV_SIZE;
+        ballTempCanv.height = BALL_TEMP_CANV_SIZE;
+        ballTempCanv.style.width = BALL_TEMP_CANV_SIZE;
+        ballTempCanv.style.height = BALL_TEMP_CANV_SIZE;
+        ballTempCanv.style.border = '1px solid black';
+        ballTempCanv.style['margin-left'] = '5px';
 
         ballTempCtx.drawImage(
             tempCanv, 
             -ball.x + BALL_TEMP_CANV_SIZE/2, 
             -ball.y + BALL_TEMP_CANV_SIZE/2
-        )
+        );
 
-        ballTempCanvMat = cv.imread(ballTempCanv)
+        const ballTempCanvMat = cv.imread(ballTempCanv);
 
+        let pixelData = [];
+        for (let i = 0; i < 32*32; i++) {
+            pixelData.push(ballTempCanvMat.data[4*i    ] / 255);
+            pixelData.push(ballTempCanvMat.data[4*i + 1] / 255);
+            pixelData.push(ballTempCanvMat.data[4*i + 2] / 255);
+        }
 
-        // Convert to greyscale
-        // cv.cvtColor(ballTempCanvMat, ballTempCanvMat, cv.COLOR_RGBA2GRAY)
-        let center = new cv.Point(ball.x, ball.y);
-        cv.circle(ballTempCanvMat, center, ball.radius, [0, 255, 0, 255], 1);
+        const ballCenter = await this.predictBallCenter(pixelData);
+        const ballType = await this.predictBallType(pixelData);
 
+        let center = new cv.Point(
+            16 + ballCenter[0], 
+            16 + ballCenter[1]
+        );
+        cv.circle(ballTempCanvMat, center, 13, [0, 255, 0, 255], 1);
         cv.imshow(ballTempCanv, ballTempCanvMat);
 
-        return ball;
+        return {
+            x: ball.x + ballCenter[0],
+            y: ball.y + ballCenter[1],
+            type: ballType
+        };
+    }
 
-        // // Get circles
-        // let ballTempMat = new cv.Mat()
-        // PARAM_1 = 100
-        // PARAM_2 = 10
-        // MIN_RADIUS = 14
-        // MAX_RADIUS = 15
-        // cv.HoughCircles(ballTempCanvMat, ballTempMat, cv.HOUGH_GRADIENT, 1, 20, PARAM_1, PARAM_2, MIN_RADIUS, MAX_RADIUS);
+    async predictBallCenter(pixelData) {
+        let modelInput = tf.tensor([pixelData]);
+        modelInput = tf.reshape(modelInput, [1, 32, 32, 3]);
+        const modelOutput = await this.modelCenter.predict(modelInput).data();
+        return modelOutput;
+    }
 
-        
-        // // If no circle can be found for some reason, simply return the original circle
-        // if (ballTempMat.cols !== 1) {
-        //     console.log(`failed to locate a single ball (found ${ballTempMat.cols})`)
-        //     return ball
+    async predictBallType(pixelData) {
+        // // Model input is scaled to be 16x16
+        // const scaledPixelData = [];
+        // for (let y = 0; y < 16; y++) {
+        //     for (let x = 0; x < 16; x++) {
+        //         for (let c = 0; c < 3; c++) {                
+        //             let pixelSum = 0;
+        //             pixelSum += pixelData[3*(32*(2*y    ) + (2*x    )) + c];
+        //             pixelSum += pixelData[3*(32*(2*y    ) + (2*x + 1)) + c];
+        //             pixelSum += pixelData[3*(32*(2*y + 1) + (2*x    )) + c];
+        //             pixelSum += pixelData[3*(32*(2*y + 1) + (2*x + 1)) + c];
+        //             scaledPixelData.push(pixelSum / 4 / 255);
+        //         }
+        //     }
         // }
 
+        // let modelInput = tf.tensor([scaledPixelData]);
+        // modelInput = tf.reshape(modelInput, [1, 16, 16, 3]);
 
-        // // Draw circle
-        // cv.cvtColor(ballTempCanvMat, ballTempCanvMat, cv.COLOR_GRAY2RGBA)
+        let modelInput = tf.tensor([pixelData]);
+        modelInput = tf.reshape(modelInput, [1, 32, 32, 3]);
 
-        // let x = ballTempMat.data32F[0];
-        // let y = ballTempMat.data32F[1];
-        // let radius = ballTempMat.data32F[2];
-        // let center = new cv.Point(x, y);
-        // cv.circle(ballTempCanvMat, center, radius, [0, 255, 0, 255], 1);
+        const modelOutput = await this.modelType.predict(modelInput).data();
 
-        // cv.imshow(ballTempCanv, ballTempCanvMat);
-
-
-
-        return {
-            x: ball.x + x - BALL_TEMP_CANV_SIZE/2,
-            y: ball.y - y + BALL_TEMP_CANV_SIZE/2,
-            radius: radius,
-            colour: [0, 255, 0, 255]
+        let type = -1;
+        let weight = -1;
+        for (let i = 0; i < 16; i++) {
+            if (modelOutput[i] >= weight) {
+                weight = modelOutput[i];
+                type = i;
+            }
         }
+        return type;
     }
 
 
