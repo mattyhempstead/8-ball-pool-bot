@@ -15,7 +15,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 LABELS_FILE = "./ball-labels.csv"
 EPOCHS = 500
 BATCH_SIZE = 128
-TRAINING_DATA_SIZE = 250
+TRAINING_DATA_SIZE = 700
 
 
 def get_ball_data():
@@ -184,19 +184,11 @@ for i,o,p in zip(input_data_test, output_data_test, predictions):
     plt.show()
 
 
-# print(" ".join(["{:.4f}".format(i) for i in pred]))
-
-# print(output_data[0])
 
 
-# testLoss, testAcc = model.evaluate(testImages, testLabels)
+save_name = input("Save model name (enter nothing to skip): ")
+if save_name != "":
+    model.save("models/{}.h5".format(save_name))
+    print("Saved model to models/{}.h5".format(save_name))
 
-# print("Correct: {}%".format(round(100*testAcc,2)))
-# print("Error: {}%".format(round(100*(1-testAcc),2)))
-
-# if input("Save model? ").upper() == "Y":
-#     model.save("models/model-conv.h5")
-#     print("Saved model as model-conv.h5")
-
-# print("Done")
-
+print("Done")

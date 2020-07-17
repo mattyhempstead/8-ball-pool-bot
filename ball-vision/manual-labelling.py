@@ -23,12 +23,13 @@ print("Read {} labelled balls".format(len(ball_data.keys())))
 # print(ball_data)
 
 
-plt.ion()
+# plt.ion()
 
 
 class Ball_Labeller(object):
     def __init__(self, ax):
         self.images = os.listdir('ball-images')
+        print("Total no. images: {}".format(len(self.images)))
 
         self.current_idx = -1
         self.current_image = None
@@ -97,12 +98,17 @@ class Ball_Labeller(object):
         self.ax.clear()
 
         # Find first un-labelled image
-        # missing_labels = [i for i in self.images if i not in ball_data.keys()]
-        # if len(missing_labels) == 0:
-        #     self.save_and_exit()
+        missing_labels = [i for i in self.images if i not in ball_data.keys()]
+        if len(missing_labels) == 0:
+            plt.close()
+            return
+        self.current_image = missing_labels[0]
 
-        self.current_idx = (self.current_idx + 1) % len(self.images)
-        self.current_image = self.images[self.current_idx]
+        # self.current_idx += 1
+        # if self.current_idx == len(self.images):
+        #     plt.close()
+        #     return
+        # self.current_image = self.images[self.current_idx]
 
         # self.current_image = missing_labels[0]
         img = mpimg.imread('ball-images/{}'.format(self.current_image))
