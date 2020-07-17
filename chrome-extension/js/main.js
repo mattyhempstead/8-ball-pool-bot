@@ -1,8 +1,6 @@
 console.log("main.js");
 
 
-
-
 const domContent = document.createElement('div');
 domContent.id = 'dom-content';
 document.body.appendChild(domContent);
@@ -37,5 +35,5 @@ domContent.appendChild(el)
 el.id = 'text'
 el.innerHTML = 'text'
 
-
-// JSEvents.eventHandlers[1].handlerFunc({x:384,y:17,preventDefault:()=>{}})
+// document.getElementById('engine').getBoundingClientRect()
+// JSEvents.eventHandlers[1].handlerFunc({x:384,y:11,preventDefault:()=>{}})

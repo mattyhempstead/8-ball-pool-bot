@@ -8,7 +8,7 @@
   This script must be executed from the DOM's JS environment using inject.js
 */
 
-console.log('Wrapping getContext')
+console.log('webglContextWrapper.js')
 
 HTMLCanvasElement.prototype.getContext = function(origFn) {
   const typesWeCareAbout = {

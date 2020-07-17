@@ -1,7 +1,7 @@
 {
     "name": "8 Ball Pool Bot",
     "description": "Bot for Miniclip's 8 Ball Pool",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "manifest_version": 2,
     "content_scripts": [
         {
@@ -9,7 +9,7 @@
                 "https://prod-8ballpool-emscripten-site-service.pool.miniclippt.com/*"
             ],
            "js": [
-                "js/inject.js",
+                "js/inject/inject.js",
                 "js/main.js"
             ],
             "css": [
@@ -30,7 +30,8 @@
         }
     ],
     "web_accessible_resources": [
-        "js/webgl-context-wrapper.js"
+        "js/inject/webglContextWrapper.js",
+        "js/inject/triggerCanvasEvents.js"
     ],
     "background": {
         "scripts": [
@@ -39,8 +40,6 @@
         "persistant": false
     },
     "permissions": [
-        
-        
         "https://prod-8ballpool-emscripten-site-service.pool.miniclippt.com/mc/*"
     ]
 }
