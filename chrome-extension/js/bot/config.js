@@ -15,3 +15,10 @@ tableRectOuter = {
   w: Math.round(gw * 0.816),
   h: Math.round(gh * 0.677),
 }
+
+
+BALL_TEMP_CANV_SIZE = 32
+
+
+PLAYER_TURN_PIXEL = { x:475, y:16 };
+OPPONENT_TURN_PIXEL = { x:690, y:16 };
