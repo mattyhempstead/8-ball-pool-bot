@@ -119,22 +119,22 @@ GameLoop = class {
             this.overlayCtx.lineWidth = 4;
             this.overlayCtx.beginPath();
             this.overlayCtx.rect(
-                tableRectInner.x,
-                tableRectInner.y,
-                tableRectInner.w,
-                tableRectInner.h
+                TABLE_RECT_INNER.x,
+                TABLE_RECT_INNER.y,
+                TABLE_RECT_INNER.w,
+                TABLE_RECT_INNER.h
             );
-            this.overlayCtx.stroke()
+            this.overlayCtx.stroke();
     
             // Draw rect around pool table
             this.overlayCtx.strokeStyle = '#55ff55';
             this.overlayCtx.lineWidth = 4;
             this.overlayCtx.beginPath();
             this.overlayCtx.rect(
-                tableRectOuter.x,
-                tableRectOuter.y,
-                tableRectOuter.w,
-                tableRectOuter.h
+                TABLE_RECT_OUTER.x,
+                TABLE_RECT_OUTER.y,
+                TABLE_RECT_OUTER.w,
+                TABLE_RECT_OUTER.h
             );
             this.overlayCtx.stroke();
     
@@ -318,11 +318,11 @@ GameLoop = class {
               + Math.asin(-hitBall.distAim / AIM_LINE_COLLISION_DISTANCE)
             );
 
-            let right = { x: tableRectOuter.x + tableRectOuter.w };
+            let right = { x: TABLE_RECT_OUTER.x + TABLE_RECT_OUTER.w };
             right.y = hitGrad * (right.x - hitBall.x) + hitBall.y;
             drawLineSegment(hitBall.x, hitBall.y, right.x, right.y, 2, 'lightgreen', this.overlayCtx);
             
-            let left = { x: tableRectOuter.x };
+            let left = { x: TABLE_RECT_OUTER.x };
             left.y = hitGrad * (left.x - hitBall.x) + hitBall.y;
             drawLineSegment(hitBall.x, hitBall.y, left.x, left.y, 2, 'lightgreen', this.overlayCtx);
         }

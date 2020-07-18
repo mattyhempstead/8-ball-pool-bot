@@ -89,7 +89,7 @@ function extendAimLine(aimCircle) {
 
     // Extend line between aimCircle and outer
 
-    xEnd = tableRectOuter.x + ((angle <= 1/2 * Math.PI || angle >= 3/2 * Math.PI) && tableRectOuter.w)
+    xEnd = TABLE_RECT_OUTER.x + ((angle <= 1/2 * Math.PI || angle >= 3/2 * Math.PI) && TABLE_RECT_OUTER.w)
     yEnd = aimCircle.y + (xEnd - aimCircle.x) * Math.tan(angle)
 
 

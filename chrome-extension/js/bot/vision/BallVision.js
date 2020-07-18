@@ -55,10 +55,10 @@ BallVision = class {
             this.tempCanv = document.createElement('canvas');
             domContent.appendChild(this.tempCanv);
             this.tempCanv.id = 'tempCanv';
-            this.tempCanv.width = tableRectOuter.w;
-            this.tempCanv.height = tableRectOuter.h;
-            this.tempCanv.style['width'] = tableRectOuter.w;
-            this.tempCanv.style['height'] = tableRectOuter.h;
+            this.tempCanv.width = TABLE_RECT_OUTER.w;
+            this.tempCanv.height = TABLE_RECT_OUTER.h;
+            this.tempCanv.style['width'] = TABLE_RECT_OUTER.w;
+            this.tempCanv.style['height'] = TABLE_RECT_OUTER.h;
             this.tempCanv.style['border'] = '1px solid black';
             this.tempCanv.style['margin'] = '5px';
             this.tempCanv.style['margin-left'] = '106px';
@@ -80,8 +80,8 @@ BallVision = class {
             this.gameLoop.gameCtx.drawingBufferWidth, 
             this.gameLoop.gameCtx.drawingBufferHeight
         );
-        this.tempCtx.putImageData(imgData, -tableRectOuter.x, -(gh - tableRectOuter.y - tableRectOuter.h));
-        // this.tempCtx.drawImage(gameCanvas, -tableRectOuter.x, -tableRectOuter.y)
+        this.tempCtx.putImageData(imgData, -TABLE_RECT_OUTER.x, -(gh - TABLE_RECT_OUTER.y - TABLE_RECT_OUTER.h));
+        // this.tempCtx.drawImage(gameCanvas, -TABLE_RECT_OUTER.x, -TABLE_RECT_OUTER.y)
     
         const tempCanvMat = cv.imread(this.tempCanv);
         // tempCanvMat = cv.matfromImageData(imgData);
@@ -267,8 +267,8 @@ BallVision = class {
 
     convertTableToGamePos(pos) {
         return {
-            x: pos.x + tableRectOuter.x, 
-            y: tableRectOuter.y + tableRectOuter.h - pos.y,
+            x: pos.x + TABLE_RECT_OUTER.x, 
+            y: TABLE_RECT_OUTER.y + TABLE_RECT_OUTER.h - pos.y,
         };
     }
 }

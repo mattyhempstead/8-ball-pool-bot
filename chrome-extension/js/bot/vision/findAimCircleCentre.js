@@ -20,8 +20,8 @@
  */
 AIM_CIRCLE_RADIUS = 13
 function findAimCircle() {
-    for (let y = tableRectOuter.y; y < tableRectOuter.y + tableRectOuter.h; y++) {
-        for (let x = tableRectOuter.x; x < tableRectOuter.x + tableRectOuter.w; x++) {
+    for (let y = TABLE_RECT_OUTER.y; y < TABLE_RECT_OUTER.y + TABLE_RECT_OUTER.h; y++) {
+        for (let x = TABLE_RECT_OUTER.x; x < TABLE_RECT_OUTER.x + TABLE_RECT_OUTER.w; x++) {
             /*
                 Check center and AIM_CIRCLE_RADIUS pixels in each direction for #FFF.
                 The aim circle seems to be the only point in the table which satisfies
