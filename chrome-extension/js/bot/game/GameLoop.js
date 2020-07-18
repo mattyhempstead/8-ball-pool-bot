@@ -50,6 +50,8 @@ GameLoop = class {
                     || this.gameCanvas.getContext('webgl');
 
         this.gameCanvas.addEventListener('mousemove', this.trackMouseMove);
+        this.gameCanvas.addEventListener('mousedown', this.trackMouseDown);
+        this.gameCanvas.addEventListener('mouseup', this.trackMouseUp);
 
         if (!this.gameCtx.getContextAttributes().preserveDrawingBuffer) {
             throw Error("webgl canvas context has attribute preserveDrawingBuffer set false and is thus not readable.");
@@ -163,14 +165,24 @@ GameLoop = class {
     stop = () => {
         window.cancelAnimationFrame(this.loopAnimationFrame);
         this.gameCanvas.removeEventListener('mousemove', this.trackMouseMove);
+        this.gameCanvas.removeEventListener('mousedown', this.trackMouseDown);
+        this.gameCanvas.removeEventListener('mouseup', this.trackMouseUp);
     }
 
     trackMouseMove = (evt) => {
+        if (this.mouse.down) return;
+
         var gameCanvasRect = this.gameCanvas.getBoundingClientRect();
-        this.mouse = {
-            x: evt.clientX - gameCanvasRect.left,
-            y: evt.clientY - gameCanvasRect.top,
-        };
+        this.mouse.x = evt.clientX - gameCanvasRect.left;
+        this.mouse.y = evt.clientY - gameCanvasRect.top;
+    }
+
+    trackMouseDown = (evt) => {
+        this.mouse.down = true;
+    }
+
+    trackMouseUp = (evt) => {
+        this.mouse.down = false;
     }
 
     /**
@@ -248,38 +260,75 @@ GameLoop = class {
         if (!whiteBallPos) return;
         whiteBallPos = this.ballVision.convertTableToGamePos(whiteBallPos);
 
+        // It's all maths I swear
 
+        // Aim line
         let A = this.mouse.y - whiteBallPos.y;
         let B = whiteBallPos.x - this.mouse.x;
         let C = (this.mouse.x - whiteBallPos.x) * this.mouse.y + (whiteBallPos.y - this.mouse.y) * this.mouse.x;
-        // console.log(A, B, C);
+
+        // Line perpendicular to aim line at white ball
+        // Used to determine if ball is in direction of cue
+        let A2 = B;
+        let B2 = -A;
+        let C2 = A*whiteBallPos.y - B*whiteBallPos.x;
 
         /*
             Loop through and find all balls which are close enough to collide with line.
             Get the closest colliding ball in the direction of the cue.
         */
+        let hitBall = undefined;
         for (let ball of this.ballVision.balls) {
+            if (ball.type == 0) continue;
             let gamePos = this.ballVision.convertTableToGamePos(ball);
+
+            // Ball must not be behind cue
+            if (A2*gamePos.x + B2*gamePos.y + C2 > 0) continue;
             
-            let distance = Math.abs(A*gamePos.x + B*gamePos.y + C) / Math.sqrt(A*A + B*B);
-            console.log(ball.type, gamePos, distance);
-            if (distance < 25.6) {
-                drawCircle(
-                    gamePos.x, 
-                    gamePos.y, 
-                    13, 
-                    BALL_COLOURS[ball.type], 
-                    this.overlayCtx
-                );
-                drawCircle(
-                    gamePos.x, 
-                    gamePos.y, 
-                    1,
-                    'white', 
-                    this.overlayCtx
-                );
+            // Ball must be close enough to aim line for a collision
+            let distAim = Math.abs(A*gamePos.x + B*gamePos.y + C) / Math.sqrt(A*A + B*B);
+            if (distAim > AIM_LINE_COLLISION_DISTANCE) continue;
+
+            // console.log(ball.type, gamePos, distAim);
+
+            // We use this distance to find which ball will collide first on the aim line
+            let distPerp = Math.abs(A2*gamePos.x + B2*gamePos.y + C2) / Math.sqrt(A2*A2 + B2*B2);
+            let aimLineCollisionDist = distPerp - Math.sqrt(AIM_LINE_COLLISION_DISTANCE**2 - distAim**2);
+            if (hitBall == undefined || hitBall.aimLineCollisionDist > aimLineCollisionDist) {
+                hitBall = {
+                    x: gamePos.x,
+                    y: gamePos.y,
+                    type: ball.type,
+                    aimLineCollisionDist: aimLineCollisionDist,
+                    distAim: (A*gamePos.x + B*gamePos.y + C) / Math.sqrt(A*A + B*B),
+                };
             }
         }
+
+        if (hitBall != undefined) {
+            drawCircle(hitBall.x, hitBall.y, 13, BALL_COLOURS[hitBall.type], this.overlayCtx);
+            if (hitBall.type > 8) {
+                drawCircle(hitBall.x, hitBall.y, 9, 'white', this.overlayCtx);
+                drawCircle(hitBall.x, hitBall.y, 5, BALL_COLOURS[hitBall.type], this.overlayCtx);
+            }
+            drawCircle(hitBall.x, hitBall.y, 1, 'white', this.overlayCtx);
+
+            let hitGrad = Math.tan(
+                Math.atan2(this.mouse.y - whiteBallPos.y, this.mouse.x - whiteBallPos.x) 
+              + Math.asin(-hitBall.distAim / AIM_LINE_COLLISION_DISTANCE)
+            );
+
+            let right = { x: tableRectOuter.x + tableRectOuter.w };
+            right.y = hitGrad * (right.x - hitBall.x) + hitBall.y;
+            drawLineSegment(hitBall.x, hitBall.y, right.x, right.y, 2, 'lightgreen', this.overlayCtx);
+            
+            let left = { x: tableRectOuter.x };
+            left.y = hitGrad * (left.x - hitBall.x) + hitBall.y;
+            drawLineSegment(hitBall.x, hitBall.y, left.x, left.y, 2, 'lightgreen', this.overlayCtx);
+        }
+
+
+
 
         drawLineSegment(
             whiteBallPos.x, 
@@ -291,23 +340,9 @@ GameLoop = class {
             this.overlayCtx
         );
 
-        drawCircle(
-            this.mouse.x, 
-            this.mouse.y, 
-            2,
-            'green', 
-            this.overlayCtx
-        );
+        drawCircle(this.mouse.x, this.mouse.y, 2, 'green', this.overlayCtx);
 
-        // console.log(whiteBallPos, this.mouse);
-        
-        drawCircle(
-            whiteBallPos.x, 
-            whiteBallPos.y, 
-            13, 
-            'white', 
-            this.overlayCtx
-        );
+        drawCircle(whiteBallPos.x, whiteBallPos.y, 13, 'white', this.overlayCtx);
     }
 
 }

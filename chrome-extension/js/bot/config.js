@@ -30,7 +30,7 @@ BALL_COLOURS = [
   'blue',
   'red',
   'purple',
-  'orange',
+  '#FF8C00',
   'green',
   '#8B4513',
   'black',
@@ -38,7 +38,10 @@ BALL_COLOURS = [
   'blue',
   'red',
   'purple',
-  'orange',
+  '#FF8C00',
   'green',
   '#8B4513',
 ];
+
+
+AIM_LINE_COLLISION_DISTANCE = 25.6;
