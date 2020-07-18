@@ -11,15 +11,17 @@
     Definely drawn as colour #FFF, yet the anti-aliasing means most pixels 
     are not exactly white.
 
-
 */
 
 console.log('GameLoop.js');
 
 GameLoop = class {
     constructor() {
+        this.initTime = new Date().getTime();
+
         this.loopAnimationFrame = undefined;
 
+        this.mouse = { x: -1, y: -1 };
         this.fps = {
             frameCount: 0,
             nextFrameTimestamp: 1000,
@@ -46,6 +48,8 @@ GameLoop = class {
         this.gameCanvas = document.getElementById('engine');
         this.gameCtx = this.gameCanvas.getContext("webgl2")
                     || this.gameCanvas.getContext('webgl');
+
+        this.gameCanvas.addEventListener('mousemove', this.trackMouseMove);
 
         if (!this.gameCtx.getContextAttributes().preserveDrawingBuffer) {
             throw Error("webgl canvas context has attribute preserveDrawingBuffer set false and is thus not readable.");
@@ -99,6 +103,10 @@ GameLoop = class {
             this.gameCtx.UNSIGNED_BYTE,
             this.gamePixels
         );
+
+        // Get mouse position
+        
+
     
         this.renderOverlay(timestamp);
     
@@ -130,7 +138,7 @@ GameLoop = class {
     
             this.gameState.updateShootingStage();
     
-            
+            if (this.gameState.shootingStage === 1) this.renderAimLines();
 
 
             // Find the position of the aim circle
@@ -146,6 +154,23 @@ GameLoop = class {
         }
     
         this.loopAnimationFrame = window.requestAnimationFrame(this.loop);
+    }
+
+    /**
+     * Stops game loop.
+     * Also removes all event listeners.
+     */
+    stop = () => {
+        window.cancelAnimationFrame(this.loopAnimationFrame);
+        this.gameCanvas.removeEventListener('mousemove', this.trackMouseMove);
+    }
+
+    trackMouseMove = (evt) => {
+        var gameCanvasRect = this.gameCanvas.getBoundingClientRect();
+        this.mouse = {
+            x: evt.clientX - gameCanvasRect.left,
+            y: evt.clientY - gameCanvasRect.top,
+        };
     }
 
     /**
@@ -219,7 +244,70 @@ GameLoop = class {
 
 
     renderAimLines = () => {
+        let whiteBallPos = this.ballVision.balls.filter(ball => ball.type === 0)[0];
+        if (!whiteBallPos) return;
+        whiteBallPos = this.ballVision.convertTableToGamePos(whiteBallPos);
+
+
+        let A = this.mouse.y - whiteBallPos.y;
+        let B = whiteBallPos.x - this.mouse.x;
+        let C = (this.mouse.x - whiteBallPos.x) * this.mouse.y + (whiteBallPos.y - this.mouse.y) * this.mouse.x;
+        // console.log(A, B, C);
+
+        /*
+            Loop through and find all balls which are close enough to collide with line.
+            Get the closest colliding ball in the direction of the cue.
+        */
+        for (let ball of this.ballVision.balls) {
+            let gamePos = this.ballVision.convertTableToGamePos(ball);
+            
+            let distance = Math.abs(A*gamePos.x + B*gamePos.y + C) / Math.sqrt(A*A + B*B);
+            console.log(ball.type, gamePos, distance);
+            if (distance < 25.6) {
+                drawCircle(
+                    gamePos.x, 
+                    gamePos.y, 
+                    13, 
+                    BALL_COLOURS[ball.type], 
+                    this.overlayCtx
+                );
+                drawCircle(
+                    gamePos.x, 
+                    gamePos.y, 
+                    1,
+                    'white', 
+                    this.overlayCtx
+                );
+            }
+        }
+
+        drawLineSegment(
+            whiteBallPos.x, 
+            whiteBallPos.y,
+            this.mouse.x, 
+            this.mouse.y,
+            2,
+            'red',
+            this.overlayCtx
+        );
+
+        drawCircle(
+            this.mouse.x, 
+            this.mouse.y, 
+            2,
+            'green', 
+            this.overlayCtx
+        );
+
+        // console.log(whiteBallPos, this.mouse);
         
+        drawCircle(
+            whiteBallPos.x, 
+            whiteBallPos.y, 
+            13, 
+            'white', 
+            this.overlayCtx
+        );
     }
 
 }

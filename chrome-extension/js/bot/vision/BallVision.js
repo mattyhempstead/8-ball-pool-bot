@@ -124,7 +124,7 @@ BallVision = class {
             cv.circle(tempCanvMat, centerNew, 0.5, [0, 255, 0, 255], 2);
             cv.circle(tempCanvMat, centerNew, 13, [0, 255, 0, 255], 1);
 
-            console.log({x,y,radius}, this.balls[i]);
+            // console.log({x,y,radius}, this.balls[i]);
         }    
         console.log(`detected ${this.balls.length} balls`);
     
@@ -265,5 +265,11 @@ BallVision = class {
         });
     }
 
+    convertTableToGamePos(pos) {
+        return {
+            x: pos.x + tableRectOuter.x, 
+            y: tableRectOuter.y + tableRectOuter.h - pos.y,
+        };
+    }
 }
 

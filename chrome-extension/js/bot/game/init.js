@@ -7,7 +7,7 @@
 
 
 // Stop game loop before creating new one
-if (typeof gameLoop !== 'undefined') window.cancelAnimationFrame(gameLoop.loopAnimationFrame);
+if (typeof gameLoop !== 'undefined') gameLoop.stop();
 
 gameLoop = new GameLoop();
 gameLoop.loop();
